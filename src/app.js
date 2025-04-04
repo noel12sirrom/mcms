@@ -1,6 +1,7 @@
 // Data storage
 let employees = [{
   id: 'emp001',
+  status: 'Active',
   name: 'Carlos Rivera',
   position: 'Sales Manager',
   email: 'carlos@motostore.com',
@@ -8,6 +9,7 @@ let employees = [{
 },
 {
   id: 'emp002',
+  status: 'Active',
   name: 'Tanya Blake',
   position: 'Parts Specialist',
   email: 'tanya@motostore.com',
@@ -15,6 +17,7 @@ let employees = [{
 },
 {
   id: 'emp003',
+  status: 'Inactive',
   name: 'Jason Lee',
   position: 'Motorbike Technician',
   email: 'jason@motostore.com',
@@ -22,6 +25,7 @@ let employees = [{
 },
 {
   id: 'emp004',
+  status: 'Active',
   name: 'Nina Patel',
   position: 'Customer Service Representative',
   email: 'nina@motostore.com',
@@ -29,6 +33,7 @@ let employees = [{
 },
 {
   id: 'emp005',
+  status: 'Active',
   name: 'Miguel Santos',
   position: 'Repair Shop Lead',
   email: 'miguel@motostore.com',
@@ -36,6 +41,7 @@ let employees = [{
 },
 {
   id: 'emp006',
+  status: 'Active',
   name: 'Ashley Chen',
   position: 'Inventory Coordinator',
   email: 'ashley@motostore.com',
@@ -43,6 +49,7 @@ let employees = [{
 },
 {
   id: 'emp007',
+  status: 'Inactive',
   name: 'Robert Knight',
   position: 'Motorbike Sales Associate',
   email: 'robert@motostore.com',
@@ -236,8 +243,14 @@ function handleAddEmployee(event) {
 function renderEmployees() {
   const tbody = document.getElementById('employeesTableBody');
   tbody.innerHTML = employees.map(employee => `
-    <tr>
-      <td class="px-6 py-4" contenteditable="false">${employee.name}</td>
+    <tr class="hover:bg-gray-100">
+      <td class='px-6 py-4'>
+        <button onclick="toggleStatus(event)" 
+          class="px-3 py-0.5 text-white rounded-full ${employee.status === 'Active' ? 'bg-green-500' : 'bg-slate-500'} text-center">
+          ${employee.status}
+        </button>
+      </td>
+      <td class="px-6 py-4 empName" contenteditable="false">${employee.name}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.position}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.email}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.phone}</td>
@@ -248,6 +261,24 @@ function renderEmployees() {
     </tr>
   `).join('');
 }
+
+function toggleStatus(event) {
+  event.preventDefault();
+  const button = event.target.closest('button');
+  const row = event.target.closest('tr');
+  const empName = row.querySelector('.empName').textContent.trim();
+  
+  const employee = employees.find(emp => emp.name === empName);
+  if (employee) {
+    employee.status = employee.status === 'Active' ? 'Inactive' : 'Active';
+    button.textContent = employee.status;
+    
+    // Update class based on status
+    button.classList.remove('bg-green-500', 'bg-slate-500');
+    button.classList.add(employee.status === 'Active' ? 'bg-green-500' : 'bg-slate-500');
+  }
+}
+						
 
 
 function deleteEmployee(id) {
@@ -264,10 +295,13 @@ function filterInventory() {
       item.name.toLowerCase().includes(searchQuery) || 
       item.category.toLowerCase().includes(searchQuery) ||
       item.manufacturer.toLowerCase().includes(searchQuery) || 
-      item.model.toLowerCase().includes(searchQuery)
+      item.model.toLowerCase().includes(searchQuery) ||
+      item.manufacturer.toLowerCase().includes(searchQuery) 
     )
     .map(item => `
       <tr>
+        <td class="px-6 py-4">${item.manufacturer}</td>
+        <td class="px-6 py-4">${item.model}</td>
         <td class="px-6 py-4">${item.name}</td>
         <td class="px-6 py-4">${item.category}</td>
         <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
@@ -291,6 +325,7 @@ function handleAddInventoryItem(event) {
     price: parseFloat(formData.get('price')),
     quantity: parseInt(formData.get('quantity')),
     manufacturer: formData.get('manufacturer'),
+    partNumber: formData.get('partNumber'),
     model: formData.get('model')
   };
   
@@ -304,6 +339,8 @@ function renderInventory() {
   const tbody = document.getElementById('inventoryTableBody');
   tbody.innerHTML = inventory.map(item => `
     <tr>
+      <td class="px-6 py-4">${item.manufacturer}</td>
+      <td class="px-6 py-4">${item.model}</td>
       <td class="px-6 py-4">${item.name}</td>
       <td class="px-6 py-4">${item.category}</td>
       <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
@@ -469,6 +506,16 @@ function handleAddOrder(event) {
   orders.push(order);
   alert(`Order for ${order.customerName} has been placed.`);
   event.target.reset();
+  document.getElementById("cartItemsBody").innerHTML = ''; // Clear cart items
+}
+
+function deleteOrder(id) {
+  orders = orders.filter(order => order.id !== id);
+  renderOrders();
+}
+
+function cancelOrder(event){
+  event.preventDefault();
   document.getElementById("cartItemsBody").innerHTML = ''; // Clear cart items
 }
 
