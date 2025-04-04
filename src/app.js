@@ -55,6 +55,7 @@ let employees = [{
   email: 'robert@motostore.com',
   phone: '555-6789'
 }];
+
 let inventory = [
   // Motorbikes
   { id: "1", name: "Yamaha R3", category: "Motorbike", price: 5500, quantity: 3, manufacturer: "Yamaha", model: "YZF-R3" },
@@ -71,76 +72,17 @@ let inventory = [
   { id: "10", name: "Engine Oil", category: "Parts", price: 10, quantity: 50, manufacturer: "Motul", model: "10W-40" }
 ];
 
-let repairs = [
-  {
-  id: "1",
-  customerName: "John Doe",
-  vehicleInfo: "Yamaha R3 - 2020",
-  description: "Oil change and brake pad replacement",
-  status: "pending",
-  assignedTo: "Mike Johnson",
-  scheduledDate: "2025-04-05",
-  estimatedCompletion: "2025-04-06",
-  price: 3500.00
-},
-{
-  id: "2",
-  customerName: "Sarah Williams",
-  vehicleInfo: "Kawasaki Ninja 400 - 2019",
-  description: "Clutch adjustment and chain replacement",
-  status: "in-progress",
-  assignedTo: "Jake Peterson",
-  scheduledDate: "2025-04-02",
-  estimatedCompletion: "2025-04-04",
-  price: 3500.00
-},
-{
-  id: "3",
-  customerName: "David Brown",
-  vehicleInfo: "Honda CBR500R - 2021",
-  description: "Tire replacement and engine tuning",
-  status: "completed",
-  assignedTo: "Chris Evans",
-  scheduledDate: "2025-03-30",
-  estimatedCompletion: "2025-04-01",
-  price: 5500.00
-},
-{
-  id: "4",
-  customerName: "Emily Johnson",
-  vehicleInfo: "Suzuki GSX-R600 - 2018",
-  description: "Exhaust system repair and fuel injection tuning",
-  status: "pending",
-  assignedTo: "Emma Watson",
-  scheduledDate: "2025-04-07",
-  estimatedCompletion: "2025-04-08",
-  price: 9500.00
-},
-{
-  id: "5",
-  customerName: "Michael Davis",
-  vehicleInfo: "KTM Duke 390 - 2022",
-  description: "Electrical wiring issue and battery replacement",
-  status: "in-progress",
-  assignedTo: "Daniel Carter",
-  scheduledDate: "2025-04-03",
-  estimatedCompletion: "2025-04-05",
-  price: 7500.00
-}];
-
-let orders = [];
-
 // Navigation
 function showSection(sectionId) {
   // Hide all sections
   document.querySelectorAll('.section').forEach(section => {
     section.classList.add('hidden');
-  });
+});
   
-  // Show selected section
+  //Show selected section
   document.getElementById(sectionId).classList.remove('hidden');
   
-  // Update navigation highlighting
+  //Update navigation highlighting
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.remove('bg-blue-50', 'text-blue-600');
   });
@@ -208,7 +150,13 @@ function filterEmployee() {
       item.phone.toLowerCase().includes(searchQuery)
     )
     .map(item =>
-      `<tr>
+      `<tr class="hover:bg-gray-100">
+        <td class='px-6 py-4'>
+          <button onclick="toggleStatus(event)" 
+            class="px-3 py-0.5 text-white text-sm font-medium rounded-md ${item.status === 'Active' ? 'bg-green-500' : 'bg-slate-500'} text-center">
+            ${item.status}
+          </button>
+        </td>
         <td class="px-6 py-4">${item.name}</td>
         <td class="px-6 py-4">${item.position}</td>
         <td class="px-6 py-4">${item.email}</td>
@@ -246,7 +194,7 @@ function renderEmployees() {
     <tr class="hover:bg-gray-100">
       <td class='px-6 py-4'>
         <button onclick="toggleStatus(event)" 
-          class="px-3 py-0.5 text-white rounded-full ${employee.status === 'Active' ? 'bg-green-500' : 'bg-slate-500'} text-center">
+          class="px-1.5 py-0.5 text-sm font-medium text-white rounded-md ${employee.status === 'Active' ? 'bg-green-500' : 'bg-slate-500'} text-center">
           ${employee.status}
         </button>
       </td>
@@ -279,8 +227,6 @@ function toggleStatus(event) {
   }
 }
 						
-
-
 function deleteEmployee(id) {
   employees = employees.filter(employee => employee.id !== id);
   renderEmployees();
