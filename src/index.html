@@ -83,12 +83,27 @@
                     </div>
                   </div>
                 </div>
+
                 <hr class="border-t border-gray-300 my-4">
-                <div id="orderItemsContainer">select an item to add</div>
+                <div id="orderItemsContainer">
+                  <table class="w-full">
+                    <thead class="bg-gray-50">
+                      <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="cartItemsBody"></tbody>
+                  </table>
+                </div>
+              
                 <hr class="border-t border-gray-300 my-4">
+
                 <div class="mt-4 w-full flex justify-between items-center">
                   <label class="block text-lg font-medium text-gray-700 font-bold">Total Price</label>
-                  <input type="number" name="totalPrice" id="totalPrice" placeholder="0" readonly class="mt-1 w-1/4 text-right rounded-md border-gray-300 text-lg font-medium shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                  <input type="text" name="totalPrice" id="totalPrice" value="0" readonly class="mt-1 w-1/4 text-right rounded-md border-gray-300 text-lg font-medium shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
                 <div class="mt-6 flex justify-end space-x-3">
                   <button type="button" onclick="hideModal('addOrderModal')" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">

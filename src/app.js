@@ -440,7 +440,7 @@ function generateRepairsReport() {
 function renderOrders() {
   const tbody = document.getElementById('orderTableBody'); 
   tbody.innerHTML = inventory.map(item => `
-    <tr onclick="selectOrderItem('${item.name}" class='cursor-pointer hover:bg-gray-100')>
+    <tr onclick="addToOrder(event)" class='cursor-pointer hover:bg-gray-100')>
       <td class="px-6 py-4">${item.name}</td>
       <td class="px-6 py-4">${item.category}</td>
       <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
@@ -477,11 +477,46 @@ function filterOrderInventory() {
   });
 }
 
+function addToOrder(event) {
+  const row = event.target.closest('tr');
+  const cells = row.querySelectorAll('td');
+  const orderItemsContainer = document.getElementById("cartItemsBody");
+  const orderItem = document.createElement("tr");
+
+  const itemName = cells[0].textContent;
+  const itemPrice = parseFloat(cells[2].textContent.replace('$', '')).toFixed(2);
+
+  orderItem.className = "mb-2";
+  orderItem.innerHTML = `
+      <td class="px-6 py-4">${itemName}</td>
+      <td class="px-6 py-4"><input type="number" class="orderQuantity w-16 text-center" value="1" min="1" onchange="calculateTotal()" /></td>
+      <td class="px-6 py-4 orderPrice" data-price="${itemPrice}">$${itemPrice}</td>
+      <td class="px-6 py-4"><button class="text-red-600 hover:text-red-800" onclick="removeOrderItem(event)">Remove</button></td>
+  `;
+  orderItemsContainer.appendChild(orderItem);
+  calculateTotal();
+
+}
+
+function removeOrderItem(event) {
+  const row = event.target.closest('tr');
+  row.remove();
+  calculateTotal();
+}
 
 function calculateTotal() {
-  const prices = Array.from(document.querySelectorAll(".orderPrice")).map(input => parseFloat(input.value) || 0);
-  document.getElementById("orderTotalPrice").value = prices.reduce((sum, price) => sum + price, 0).toFixed(2);
+  let total = 0;
+  document.querySelectorAll("#cartItemsBody tr").forEach(row => {
+      const quantity = row.querySelector(".orderQuantity").value;
+      const pricePerItem = row.querySelector(".orderPrice").getAttribute("data-price");
+      const itemTotal = quantity * pricePerItem;
+      row.querySelector(".orderPrice").textContent = `$${itemTotal.toFixed(2)}`;
+      total += itemTotal;
+  });
+
+  document.getElementById("totalPrice").value = `$${total.toFixed(2)}`;
 }
+
 
 
 // Initialize the application
