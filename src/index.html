@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Motorcycle Shop Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50">
+    <div class="flex h-screen">
+      <!-- Sidebar Navigation -->
+      <nav class="w-64 bg-white shadow-lg p-4">
+        <div class="mb-8">
+          <h1 class="text-2xl font-bold text-blue-600">Moto Manager</h1>
+        </div>
+        <div class="space-y-2">
+          <button onclick="showSection('order')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors">
+            Order
+          </button>
+          <button onclick="showSection('employees')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors">
+            Employees
+          </button>
+          <button onclick="showSection('inventory')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors">
+            Inventory
+          </button>
+          <button onclick="showSection('repairs')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors">
+            Repairs
+          </button>
+          <button onclick="showSection('reports')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors">
+            Reports
+          </button>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="flex-1 p-8 overflow-auto">
+         <!-- Orders Section -->
+         <section id="order" class="section hidden">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Order</h2>
+            <button onclick="showModal('addOrderModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              History
+            </button>
+          </div>
+          <!-- Search Bar -->
+          <div class="mb-4">
+              <input 
+                type="text" 
+                id="orderSearch" 
+                placeholder="Search for an item..." 
+                oninput="filterOrderInventory()" 
+                class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+            </div>
+          <div class="flex space-x-4 mb-6">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden w-1/2">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                  </tr>
+                </thead>
+                <tbody id="orderTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md overflow-hidden w-1/2 p-6">
+              <h3 class="text-lg font-semibold mb-4">Order Items</h3>
+              <form action="">
+                <div class="flex space-x-4 mb-4 items-center justify-between">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Customer Name</label>
+                    <input type="text" name="customerName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 focus:border-blue-500 focus:ring-blue-500">
+                  </div>
+                
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700">Date</label>
+                    <div id="currentDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm px-3 py-2 bg-gray-100">
+                      <!-- Date will be inserted here -->
+                    </div>
+                  </div>
+                </div>
+                <hr class="border-t border-gray-300 my-4">
+                <div id="orderItemsContainer">select an item to add</div>
+                <hr class="border-t border-gray-300 my-4">
+                <div class="mt-4 w-full flex justify-between items-center">
+                  <label class="block text-lg font-medium text-gray-700 font-bold">Total Price</label>
+                  <input type="number" name="totalPrice" id="totalPrice" placeholder="0" readonly class="mt-1 w-1/4 text-right rounded-md border-gray-300 text-lg font-medium shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                  <button type="button" onclick="hideModal('addOrderModal')" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">
+                    Cancel
+                  </button>
+                  <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    Cash Order
+                  </button>
+                </div>
+                <div id="cartItems"></div>
+
+              </form>
+              
+              
+
+            </div>
+
+          </div>
+           
+        </section>
+
+        <!-- Employees Section -->
+        <section id="employees" class="section hidden">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Employees</h2>
+            <button onclick="showModal('addEmployeeModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              Add Employee
+            </button>
+          </div>
+          <!-- Search Bar -->
+          <div class="mb-4">
+            <input 
+              type="text" 
+              id="employeeSearch" 
+              placeholder="Search for an item..." 
+              oninput="filterEmployee()" 
+              class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            >
+          </div>
+          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="employeesTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Inventory Section -->
+        <section id="inventory" class="section hidden">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Inventory</h2>
+            <button onclick="showModal('addInventoryModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              Add Item
+            </button>
+          </div>
+          <!-- Search Bar -->
+          <div class="mb-4">
+            <input 
+              type="text" 
+              id="inventorySearch" 
+              placeholder="Search for an item..." 
+              oninput="filterInventory()" 
+              class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            >
+          </div>
+          <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table class="w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Repairs Section -->
+        <section id="repairs" class="section hidden">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Repairs</h2>
+            <button onclick="showModal('addRepairModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              Schedule Repair
+            </button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="repairsBoard">
+            <!-- Repair cards will be dynamically inserted here -->
+          </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="section hidden">
+          <h2 class="text-2xl font-bold mb-6">Reports</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+              <h3 class="text-lg font-semibold mb-4">Sales Report</h3>
+              <button onclick="generateReport('sales')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full">
+                Generate
+              </button>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+              <h3 class="text-lg font-semibold mb-4">Inventory Report</h3>
+              <button onclick="generateReport('inventory')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full">
+                Generate
+              </button>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+              <h3 class="text-lg font-semibold mb-4">Repairs Report</h3>
+              <button onclick="generateReport('repairs')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full">
+                Generate
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="addEmployeeModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">Add Employee</h3>
+        <form id="addEmployeeForm" onsubmit="handleAddEmployee(event)">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Name</label>
+              <input type="text" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Position</label>
+              <input type="text" name="position" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" name="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Phone</label>
+              <input type="tel" name="phone" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="hideModal('addEmployeeModal')" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">
+              Cancel
+            </button>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              Add Employee
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Order Modal -->
+    <div id="addOrderModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">Add Order</h3>
+        <form id="addOrderForm" onsubmit="handleAddOrder(event)">
+          <div class="space-y-4">
+            <!-- Customer Name -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Customer Name</label>
+              <input type="text" name="customerName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            
+            <!-- Order Items Container -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Order Items</label>
+              <div id="orderItemsContainer"></div>
+              <button type="button" onclick="addItemToOrder()" class="mt-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700">Add Item</button>
+            </div>
+
+            <!-- Total Price -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Total Price</label>
+              <input type="number" name="totalPrice" id="totalPrice" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="hideModal('addOrderModal')" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">
+              Cancel
+            </button>
+            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+              Add Order
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+
+
+    <!-- Add repair Modal -->
+    <div id="addRepairModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">Add Repair</h3>
+        <form id="addRepairForm" onsubmit="handleAddRepair(event)">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Customer Name</label>
+              <input type="text" name="customerName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Vehicle Info</label>
+              <input type="text" name="vehicleInfo" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g. Yamaha R6, 2019">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Description</label>
+              <textarea name="description" rows="3" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Issue description..."></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Assigned To</label>
+              <input type="text" name="assignedTo" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Scheduled Date</label>
+              <input type="date" name="scheduledDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Estimated Completion</label>
+              <input type="date" name="estimatedCompletion" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Price</label>
+              <input type="number" name="price" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="hideModal('addRepairModal')" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">
+              Cancel
+            </button>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              Add Repair
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Inventory Modal -->
+    <div id="addInventoryModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-6 rounded-lg w-full max-w-md">
+        <h3 class="text-xl font-bold mb-4">Add Inventory Item</h3>
+        <form id="addInventoryForm" onsubmit="handleAddInventoryItem(event)">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Item Name</label>
+              <input type="text" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Category</label>
+              <input type="text" name="category" required placeholder="e.g. Engine, Tires, Helmet" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Price ($)</label>
+              <input type="number" name="price" step="0.01" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Quantity</label>
+              <input type="number" name="quantity" required min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Manufacturer</label>
+              <input type="text" name="manufacturer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Model</label>
+              <input type="text" name="model" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+          </div>
+          <div class="mt-6 flex justify-end space-x-3">
+            <button type="button" onclick="hideModal('addInventoryModal')" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">
+              Cancel
+            </button>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+              Add Item
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+
+    <!-- Add script reference -->
+    <script src="app.js"></script>
+  </body>
+</html>

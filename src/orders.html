@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Cash Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <h2 class="text-3xl font-bold mb-6">Top Cash Orders</h2>
+    
+    <input type="text" id="searchBar" placeholder="Search by Customer Name" onkeyup="searchOrders()" class="p-2 border rounded mb-4 w-full md:w-1/3">
+    
+    <form id="orderForm" onsubmit="addOrder(event)" class="space-y-4">
+        <div class="flex space-x-4">
+            <input type="text" id="customerName" placeholder="Customer Name" required class="p-2 border rounded w-full md:w-1/2">
+            <button type="button" onclick="addItemToOrder()" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Add Item</button>
+        </div>
+        <div id="orderItemsContainer"></div>
+        <button type="submit" class="bg-green-600 text-white p-2 rounded hover:bg-green-700">Add Order</button>
+    </form>
+    
+    <table class="w-full mt-6 table-auto">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="px-4 py-2">Customer Name</th>
+                <th class="px-4 py-2">Items</th>
+                <th class="px-4 py-2">Total Price</th>
+                <th class="px-4 py-2">Action</th>
+            </tr>
+        </thead>
+        <tbody id="ordersTableBody" class="divide-y divide-gray-300"></tbody>
+    </table>
+    
+    <script>
+        let orders = [];
+        let currentOrderItems = [];
+
+        function addItemToOrder() {
+            const container = document.getElementById("orderItemsContainer");
+            const itemIndex = currentOrderItems.length;
+            const itemHtml = `
+                <div class="order-item flex space-x-4 mb-4" data-index="${itemIndex}">
+                    <select class="orderType p-2 border rounded">
+                        <option value="part">Part</option>
+                        <option value="bike">Bike</option>
+                    </select>
+                    <input type="text" class="orderItem p-2 border rounded" placeholder="Order Item" required>
+                    <input type="number" class="orderPrice p-2 border rounded" placeholder="Price" required>
+                    <button type="button" onclick="removeItem(${itemIndex})" class="bg-red-600 text-white p-2 rounded hover:bg-red-700">Remove</button>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', itemHtml);
+            currentOrderItems.push({});
+        }
+
+        function removeItem(index) {
+            currentOrderItems.splice(index, 1);
+            document.querySelector(`[data-index='${index}']`).remove();
+        }
+
+        function addOrder(event) {
+            event.preventDefault();
+            const customerName = document.getElementById("customerName").value;
+            const items = Array.from(document.querySelectorAll(".order-item")).map(item => {
+                return {
+                    type: item.querySelector(".orderType").value,
+                    name: item.querySelector(".orderItem").value,
+                    price: parseFloat(item.querySelector(".orderPrice").value)
+                };
+            });
+            
+            const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+            
+            const order = { id: Date.now().toString(), customerName, items, totalPrice };
+            orders.push(order);
+            renderOrders();
+            document.getElementById("orderForm").reset();
+            document.getElementById("orderItemsContainer").innerHTML = '';
+            currentOrderItems = [];
+        }
+
+        function renderOrders() {
+            const tbody = document.getElementById("ordersTableBody");
+            tbody.innerHTML = orders.map(order => `
+                <tr class="hover:bg-gray-100">
+                    <td class="px-4 py-2">${order.customerName}</td>
+                    <td class="px-4 py-2">${order.items.map(item => `${item.type}: ${item.name} ($${item.price.toFixed(2)})`).join("<br>")}</td>
+                    <td class="px-4 py-2">$${order.totalPrice.toFixed(2)}</td>
+                    <td class="px-4 py-2">
+                        <button onclick="deleteOrder('${order.id}')" class="bg-red-600 text-white p-2 rounded hover:bg-red-700">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteOrder(id) {
+            orders = orders.filter(order => order.id !== id);
+            renderOrders();
+        }
+
+        function searchOrders() {
+            const query = document.getElementById("searchBar").value.toLowerCase();
+            const tbody = document.getElementById("ordersTableBody");
+            tbody.innerHTML = orders.filter(order => order.customerName.toLowerCase().includes(query)).map(order => `
+                <tr class="hover:bg-gray-100">
+                    <td class="px-4 py-2">${order.customerName}</td>
+                    <td class="px-4 py-2">${order.items.map(item => `${item.type}: ${item.name} ($${item.price.toFixed(2)})`).join("<br>")}</td>
+                    <td class="px-4 py-2">$${order.totalPrice.toFixed(2)}</td>
+                    <td class="px-4 py-2">
+                        <button onclick="deleteOrder('${order.id}')" class="bg-red-600 text-white p-2 rounded hover:bg-red-700">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
