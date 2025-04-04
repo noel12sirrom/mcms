@@ -121,6 +121,7 @@ let repairs = [
   price: 7500.00
 }];
 
+let orders = [];
 
 // Navigation
 function showSection(sectionId) {
@@ -242,7 +243,7 @@ function renderEmployees() {
       <td class="px-6 py-4" contenteditable="false">${employee.phone}</td>
       <td class="px-6 py-4 flex gap-2">
         <button onclick="edit(event)" class="text-blue-600 hover:text-blue-800">Edit</button>
-        <button onclick="deleteEmployee('${employee.id}')" class="text-red-600 hover:text-red-800">Delete</button>
+        <button onclick="deleteEmployee('${employee.id}')" class="text-red-600 hover:text-red-800">Del</button>
       </td>
     </tr>
   `).join('');
@@ -309,7 +310,7 @@ function renderInventory() {
       <td class="px-6 py-4">${item.quantity}</td>
       <td class="px-6 py-4 flex gap-2">
         <button onclick="edit(event)" class="text-blue-600 hover:text-blue-800">Edit</button>
-        <button onclick="deleteInventoryItem('${item.id}')" class="text-red-600 hover:text-red-800">Delete</button>
+        <button onclick="deleteInventoryItem('${item.id}')" class="text-red-600 hover:text-red-800">Del</button>
       </td>
     </tr>
   `).join('');
@@ -447,6 +448,28 @@ function renderOrders() {
       <td class="px-6 py-4">${item.quantity}</td>
     </tr>
   `).join('');
+}
+
+function handleAddOrder(event) {
+  event.preventDefault();
+  
+  const formData = new FormData(event.target);
+  const order = {
+    id: Date.now().toString(),
+    customerName: formData.get('customerName'),
+    items: Array.from(document.querySelectorAll("#cartItemsBody tr")).map(row => ({
+      name: row.querySelector("td").textContent,
+      quantity: row.querySelector(".orderQuantity").value,
+      price: parseFloat(row.querySelector(".orderPrice").getAttribute("data-price"))
+    })),
+    totalPrice: parseFloat(document.getElementById("totalPrice").value.replace('$', '')),
+    orderDate: new Date().toISOString().split('T')[0]
+  };
+  
+  orders.push(order);
+  alert(`Order for ${order.customerName} has been placed.`);
+  event.target.reset();
+  document.getElementById("cartItemsBody").innerHTML = ''; // Clear cart items
 }
 
 function filterOrderInventory() {
