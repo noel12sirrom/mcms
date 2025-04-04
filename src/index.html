@@ -43,7 +43,7 @@
          <section id="order" class="section hidden">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold">Order</h2>
-            <button onclick="showModal('addOrderModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            <button onclick="showModal('viewOrderHistoryModal')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
               History
             </button>
           </div>
@@ -273,41 +273,16 @@
     </div>
 
     <!-- Add Order Modal -->
-    <div id="addOrderModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div id="viewOrderHistoryModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div class="bg-white p-6 rounded-lg w-full max-w-md">
-        <h3 class="text-xl font-bold mb-4">Add Order</h3>
-        <form id="addOrderForm" onsubmit="handleAddOrder(event)">
-          <div class="space-y-4">
-            <!-- Customer Name -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Customer Name</label>
-              <input type="text" name="customerName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-            </div>
-            
-            <!-- Order Items Container -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Order Items</label>
-              <div id="orderItemsContainer"></div>
-              <button type="button" onclick="addItemToOrder()" class="mt-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700">Add Item</button>
-            </div>
-
-            <!-- Total Price -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Total Price</label>
-              <input type="number" name="totalPrice" id="totalPrice" readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-            </div>
-          </div>
-
-          <!-- Buttons -->
-          <div class="mt-6 flex justify-end space-x-3">
-            <button type="button" onclick="hideModal('addOrderModal')" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">
-              Cancel
-            </button>
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-              Add Order
-            </button>
-          </div>
-        </form>
+        <h3 class="text-xl font-bold mb-4">History</h3>
+        <div id="orderHistory"></div>
+        <!-- Buttons -->
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="renderOrderHistory()" class="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500">
+            Close
+          </button>
+        </div>
       </div>
     </div>
 

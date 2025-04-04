@@ -63,6 +63,64 @@ let employees = [{
   hireDate: '2023-07-30'
 }];
 
+let repairs = [
+  {
+    id: "1",
+    customerName: "John Doe",
+    vehicleInfo: "Yamaha R3 - 2020",
+    description: "Oil change and brake pad replacement",
+    status: "pending",
+    assignedTo: "Mike Johnson",
+    scheduledDate: "2025-04-05",
+    estimatedCompletion: "2025-04-06",
+    price: 150.00
+  },
+  {
+    id: "2",
+    customerName: "Sarah Williams",
+    vehicleInfo: "Kawasaki Ninja 400 - 2019",
+    description: "Clutch adjustment and chain replacement",
+    status: "in-progress",
+    assignedTo: "Jake Peterson",
+    scheduledDate: "2025-04-02",
+    estimatedCompletion: "2025-04-04",
+    price: 200.00
+  },
+  {
+    id: "3",
+    customerName: "David Brown",
+    vehicleInfo: "Honda CBR500R - 2021",
+    description: "Tire replacement and engine tuning",
+    status: "completed",
+    assignedTo: "Chris Evans",
+    scheduledDate: "2025-03-30",
+    estimatedCompletion: "2025-04-01",
+    price: 300.00
+  },
+  {
+    id: "4",
+    customerName: "Emily Johnson",
+    vehicleInfo: "Suzuki GSX-R600 - 2018",
+    description: "Exhaust system repair and fuel injection tuning",
+    status: "pending",
+    assignedTo: "Emma Watson",
+    scheduledDate: "2025-04-07",
+    estimatedCompletion: "2025-04-08",
+    price: 250.00
+  },
+  {
+    id: "5",
+    customerName: "Michael Davis",
+    vehicleInfo: "KTM Duke 390 - 2022",
+    description: "Electrical wiring issue and battery replacement",
+    status: "in-progress",
+    assignedTo: "Daniel Carter",
+    scheduledDate: "2025-04-03",
+    estimatedCompletion: "2025-04-05",
+    price: 180.00
+  }
+];
+
 let inventory = [
   // Motorbikes
   { id: "1", name: "Yamaha R3", category: "Motorbike", price: 5500, quantity: 3, manufacturer: "Yamaha", model: "YZF-R3" },
@@ -442,6 +500,9 @@ function renderOrders() {
     </tr>
   `).join('');
 }
+function renderOrderHistory() {
+  const tbody = document.getElementById('orderHistoryTableBody');
+}
 
 function handleAddOrder(event) {
   event.preventDefault();
@@ -473,6 +534,7 @@ function deleteOrder(id) {
 function cancelOrder(event){
   event.preventDefault();
   document.getElementById("cartItemsBody").innerHTML = ''; // Clear cart items
+  calculateTotal(); // Reset total price
 }
 
 function filterOrderInventory() {
@@ -487,7 +549,7 @@ function filterOrderInventory() {
       item.model.toLowerCase().includes(searchQuery)
     )
     .map(item => `
-      <tr>
+      <tr onclick="addToOrder(event)" class='cursor-pointer hover:bg-gray-100>
         <td class="px-6 py-4">${item.manufacturer}</td>
         <td class="px-6 py-4">${item.name}</td>
         <td class="px-6 py-4">${item.category}</td>
@@ -510,7 +572,7 @@ function addToOrder(event) {
   const orderItemsContainer = document.getElementById("cartItemsBody");
   const orderItem = document.createElement("tr");
 
-  const itemName = cells[0].textContent;
+  const itemName = cells[1].textContent;
   const itemPrice = parseFloat(cells[3].textContent.replace('$', '')).toFixed(2);
 
   orderItem.className = "mb-2";
