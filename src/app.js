@@ -479,6 +479,7 @@ function renderOrders() {
   const tbody = document.getElementById('orderTableBody'); 
   tbody.innerHTML = inventory.map(item => `
     <tr onclick="addToOrder(event)" class='cursor-pointer hover:bg-gray-100')>
+      <td class="px-6 py-4">${item.manufacturer}</td>
       <td class="px-6 py-4">${item.name}</td>
       <td class="px-6 py-4">${item.category}</td>
       <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
@@ -532,6 +533,7 @@ function filterOrderInventory() {
     )
     .map(item => `
       <tr>
+        <td class="px-6 py-4">${item.manufacturer}</td>
         <td class="px-6 py-4">${item.name}</td>
         <td class="px-6 py-4">${item.category}</td>
         <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
