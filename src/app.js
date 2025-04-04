@@ -137,6 +137,8 @@ let inventory = [
   { id: "10", name: "Engine Oil", category: "Parts", price: 10, quantity: 50, manufacturer: "Motul", model: "10W-40" }
 ];
 
+let orders = [];
+
 // Navigation
 function showSection(sectionId) {
   // Hide all sections
