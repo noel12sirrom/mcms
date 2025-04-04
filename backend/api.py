@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource, reqparse, marshal_with, fields, abort
-
+import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mcms.db'
@@ -14,7 +14,7 @@ class Employee(db.Model):
     name = db.Column(db.String(80), unique=True, nullable=False)
     position = db.Column(db.String(80), nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    date_of_employment = db.Column(db.Date, nullable=False)
+    date_of_employment = db.Column(db.String(8), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
 
     def __repr__(self):
