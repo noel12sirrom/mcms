@@ -5,7 +5,8 @@ let employees = [{
   name: 'Carlos Rivera',
   position: 'Sales Manager',
   email: 'carlos@motostore.com',
-  phone: '555-1234'
+  phone: '555-1234',
+  hireDate: '2023-01-15'
 },
 {
   id: 'emp002',
@@ -13,7 +14,8 @@ let employees = [{
   name: 'Tanya Blake',
   position: 'Parts Specialist',
   email: 'tanya@motostore.com',
-  phone: '555-5678'
+  phone: '555-5678',
+  hireDate: '2023-02-20'
 },
 {
   id: 'emp003',
@@ -21,7 +23,8 @@ let employees = [{
   name: 'Jason Lee',
   position: 'Motorbike Technician',
   email: 'jason@motostore.com',
-  phone: '555-9012'
+  phone: '555-9012',
+  hireDate: '2023-03-10'
 },
 {
   id: 'emp004',
@@ -29,15 +32,17 @@ let employees = [{
   name: 'Nina Patel',
   position: 'Customer Service Representative',
   email: 'nina@motostore.com',
-  phone: '555-3456'
+  phone: '555-3456',
+  hireDate: '2023-04-05'
 },
 {
   id: 'emp005',
-  status: 'Active',
+  status: 'Inactive',
   name: 'Miguel Santos',
   position: 'Repair Shop Lead',
   email: 'miguel@motostore.com',
-  phone: '555-7890'
+  phone: '555-7890',
+  hireDate: '2023-05-15'
 },
 {
   id: 'emp006',
@@ -45,7 +50,8 @@ let employees = [{
   name: 'Ashley Chen',
   position: 'Inventory Coordinator',
   email: 'ashley@motostore.com',
-  phone: '555-2345'
+  phone: '555-2345',
+  hireDate: '2023-06-25'
 },
 {
   id: 'emp007',
@@ -53,7 +59,8 @@ let employees = [{
   name: 'Robert Knight',
   position: 'Motorbike Sales Associate',
   email: 'robert@motostore.com',
-  phone: '555-6789'
+  phone: '555-6789',
+  hireDate: '2023-07-30'
 }];
 
 let inventory = [
@@ -159,6 +166,7 @@ function filterEmployee() {
         </td>
         <td class="px-6 py-4">${item.name}</td>
         <td class="px-6 py-4">${item.position}</td>
+        <td class="px-6 py-4">${item.hireDate}</td>
         <td class="px-6 py-4">${item.email}</td>
         <td class="px-6 py-4">${item.phone}</td>
         <td class="px-6 py-4">
@@ -200,6 +208,7 @@ function renderEmployees() {
       </td>
       <td class="px-6 py-4 empName" contenteditable="false">${employee.name}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.position}</td>
+      <td class="px-6 py-4" contenteditable="false">${employee.hireDate}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.email}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.phone}</td>
       <td class="px-6 py-4 flex gap-2">
@@ -502,14 +511,14 @@ function addToOrder(event) {
   const orderItem = document.createElement("tr");
 
   const itemName = cells[0].textContent;
-  const itemPrice = parseFloat(cells[2].textContent.replace('$', '')).toFixed(2);
+  const itemPrice = parseFloat(cells[3].textContent.replace('$', '')).toFixed(2);
 
   orderItem.className = "mb-2";
   orderItem.innerHTML = `
       <td class="px-6 py-4">${itemName}</td>
       <td class="px-6 py-4"><input type="number" class="orderQuantity w-16 text-center" value="1" min="1" onchange="calculateTotal()" /></td>
       <td class="px-6 py-4 orderPrice" data-price="${itemPrice}">$${itemPrice}</td>
-      <td class="px-6 py-4"><button class="text-red-600 hover:text-red-800" onclick="removeOrderItem(event)">Remove</button></td>
+      <td class="px-6 py-4"><button class="text-red-600 hover:text-red-800 font-bold text-2xl text-center" onclick="removeOrderItem(event)">×</button></td>
   `;
   orderItemsContainer.appendChild(orderItem);
   calculateTotal();

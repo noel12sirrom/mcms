@@ -1,0 +1,5 @@
+activcate venv
+$ source .venv/Scripts/activate
+
+|deactivate
+deactivate
