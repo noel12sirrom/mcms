@@ -1,67 +1,6 @@
 // Data storage
-let employees = [{
-  id: 'emp001',
-  status: 'Active',
-  name: 'Carlos Rivera',
-  position: 'Sales Manager',
-  email: 'carlos@motostore.com',
-  phone: '555-1234',
-  hireDate: '2023-01-15'
-},
-{
-  id: 'emp002',
-  status: 'Active',
-  name: 'Tanya Blake',
-  position: 'Parts Specialist',
-  email: 'tanya@motostore.com',
-  phone: '555-5678',
-  hireDate: '2023-02-20'
-},
-{
-  id: 'emp003',
-  status: 'Inactive',
-  name: 'Jason Lee',
-  position: 'Motorbike Technician',
-  email: 'jason@motostore.com',
-  phone: '555-9012',
-  hireDate: '2023-03-10'
-},
-{
-  id: 'emp004',
-  status: 'Active',
-  name: 'Nina Patel',
-  position: 'Customer Service Representative',
-  email: 'nina@motostore.com',
-  phone: '555-3456',
-  hireDate: '2023-04-05'
-},
-{
-  id: 'emp005',
-  status: 'Inactive',
-  name: 'Miguel Santos',
-  position: 'Repair Shop Lead',
-  email: 'miguel@motostore.com',
-  phone: '555-7890',
-  hireDate: '2023-05-15'
-},
-{
-  id: 'emp006',
-  status: 'Active',
-  name: 'Ashley Chen',
-  position: 'Inventory Coordinator',
-  email: 'ashley@motostore.com',
-  phone: '555-2345',
-  hireDate: '2023-06-25'
-},
-{
-  id: 'emp007',
-  status: 'Inactive',
-  name: 'Robert Knight',
-  position: 'Motorbike Sales Associate',
-  email: 'robert@motostore.com',
-  phone: '555-6789',
-  hireDate: '2023-07-30'
-}];
+
+let employees = [];
 
 let repairs = [
   {
@@ -122,25 +61,70 @@ let repairs = [
 ];
 
 let inventory = [
-  // Motorbikes
-  { id: "1", name: "Yamaha R3", category: "Motorbike", price: 5500, quantity: 3, manufacturer: "Yamaha", model: "YZF-R3" },
-  { id: "2", name: "Kawasaki Ninja 400", category: "Motorbike", price: 5999, quantity: 2, manufacturer: "Kawasaki", model: "Ninja 400" },
-  { id: "3", name: "Honda CBR500R", category: "Motorbike", price: 7200, quantity: 4, manufacturer: "Honda", model: "CBR500R" },
-  { id: "4", name: "Suzuki GSX-R600", category: "Motorbike", price: 11500, quantity: 1, manufacturer: "Suzuki", model: "GSX-R600" },
-  { id: "5", name: "KTM Duke 390", category: "Motorbike", price: 5799, quantity: 3, manufacturer: "KTM", model: "Duke 390" },
 
-  // Parts
-  { id: "6", name: "Brake Pads", category: "Parts", price: 45, quantity: 20, manufacturer: "Brembo", model: "Universal" },
-  { id: "7", name: "Chain Kit", category: "Parts", price: 75, quantity: 15, manufacturer: "DID", model: "Universal" },
-  { id: "8", name: "Air Filter", category: "Parts", price: 30, quantity: 25, manufacturer: "K&N", model: "Universal" },
-  { id: "9", name: "Clutch Lever", category: "Parts", price: 40, quantity: 10, manufacturer: "ASV", model: "Universal" },
-  { id: "10", name: "Engine Oil", category: "Parts", price: 10, quantity: 50, manufacturer: "Motul", model: "10W-40" }
 ];
 
 let orders = [];
 
+
+const fetchInventoryData = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/inventory');
+    const data = await response.json();
+    inventory = data;
+    console.log(inventory);
+    renderInventory();
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+  }
+};
+const fetchEmployeesData = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/employees');
+    const data = await response.json();
+    employees = data;
+    console.log(employees);
+    renderEmployees();
+  } catch (error) {
+    console.error('Error fetching Employees:', error);
+  }
+};
+const fetchRepairsData = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/repairs');
+    const data = await response.json();
+    repairs = data;
+    console.log(repairs);
+    renderRepairs();
+  } catch (error) {
+    console.error('Error fetching Repairs:', error);
+  }
+};
+const fetchOrdersData = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/orders');
+    const data = await response.json();
+    orders = data;
+    console.log(inventory);
+    renderOrdersHistory();
+  } catch (error) {
+    console.error('Error fetching Orders:', error);
+  }
+};
+const fetchOrderItemsData = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/order_items');
+    const data = await response.json();
+    orderItems = data;
+    console.log(inventory);
+    renderInventory();
+  } catch (error) {
+    console.error('Error fetching order Items:', error);
+  }
+};
+
 // Navigation
-function showSection(sectionId) {
+async function showSection(sectionId) {
   // Hide all sections
   document.querySelectorAll('.section').forEach(section => {
     section.classList.add('hidden');
@@ -158,15 +142,19 @@ function showSection(sectionId) {
   activeNav.classList.add('bg-blue-50', 'text-blue-600');
 
   if (sectionId === 'inventory') {
+    fetchInventoryData(); 
     renderInventory();
   }
   if (sectionId === 'repairs') {
+    fetchRepairsData();
     renderRepairs();
   }
   if (sectionId === 'employees') {
+    fetchEmployeesData();
     renderEmployees();
   }
   if (sectionId === 'order') {
+    fetchOrdersData();
     renderOrders();
   }
 }
@@ -226,7 +214,7 @@ function filterEmployee() {
         </td>
         <td class="px-6 py-4">${item.name}</td>
         <td class="px-6 py-4">${item.position}</td>
-        <td class="px-6 py-4">${item.hireDate}</td>
+        <td class="px-6 py-4">${item.date_of_employement}</td>
         <td class="px-6 py-4">${item.email}</td>
         <td class="px-6 py-4">${item.phone}</td>
         <td class="px-6 py-4">
@@ -408,7 +396,7 @@ function renderRepairs() {
       <p class="text-sm text-gray-600 mb-2">${repair.vehicle_model}</p>
       <p class="text-sm mb-4">${repair.description}</p>
       <div class="text-sm text-gray-500">
-        <p>Assigned to: ${repair.assigned_employeeo}</p>
+        <p>Assigned to: ${repair.assigned_employee}</p>
         <p>Scheduled: ${repair.scheduled_date}</p>
         <p>Est. Completion: ${repair.estimated_completion_date}</p>
       </div>
@@ -503,7 +491,7 @@ function renderOrders() {
     </tr>
   `).join('');
 }
-function renderOrderHistory() {
+function renderOrdersHistory() {
   const tbody = document.getElementById('orderHistoryTableBody');
 }
 

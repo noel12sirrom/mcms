@@ -3,8 +3,10 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource, reqparse, marshal_with, fields, abort
 import datetime
 from flask import request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app) # ALLOWS FRONT END TO SEND REQUESTS
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mcms.db'
 db = SQLAlchemy(app)
 api = Api(app)
