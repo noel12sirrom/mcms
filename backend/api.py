@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource, reqparse, marshal_with, fields, abort
 import datetime
+from flask import request
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mcms.db'
@@ -176,7 +177,7 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     customer_name = db.Column(db.String(80), nullable=False)
     order_date = db.Column(db.String(8), nullable=False)
-    Total = db.Column(db.Float, nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
 
     
     def __repr__(self):
@@ -184,14 +185,14 @@ class Order(db.Model):
 order_args = reqparse.RequestParser()
 order_args.add_argument('customer_name', type=str, help='Name of the customer', required=True)
 order_args.add_argument('order_date', type=str, help='Date of the order', required=True)
-order_args.add_argument('Total', type=float, help='Total amount of the order', required=True)
+order_args.add_argument('total_price', type=float, help='Total amount of the order', required=True)
 
 class OrderResource(Resource):
     order_fields = {
             'id': fields.Integer,
             'customer_name': fields.String,
             'order_date': fields.String,
-            'Total': fields.Float
+            'total_price': fields.Float
         }
     
     @marshal_with(order_fields)
@@ -210,10 +211,33 @@ class OrderResource(Resource):
     
     @marshal_with(order_fields)
     def post(self):
-        args = order_args.parse_args()
-        new_order = Order(**args)
+        data = request.get_json()
+        
+        # Step 1: Create the order
+        new_order = Order(
+            customer_name=data['customer_name'],
+            order_date=data['order_date'],
+            total_price=data['total_price']
+        )
         db.session.add(new_order)
+        db.session.commit()  # To generate the order.id for FK
+
+        # Step 2: Add order items
+        for item in data.get('items', []):
+            inventory_item = Inventory.query.filter_by(name=item['name']).first()
+            if not inventory_item:
+                abort(400, message=f"Item '{item['name']}' not found in inventory")
+
+            new_order_item = OrderItem(
+                order_id=new_order.id,
+                name=item['name'],
+                inventory_id=inventory_item.id,
+                quantity=int(item['quantity'])
+            )
+            db.session.add(new_order_item)
+
         db.session.commit()
+
         return new_order, 201
     
     @marshal_with(order_fields)
@@ -245,6 +269,7 @@ api.add_resource(OrderResource, '/orders', '/order/<int:order_id>')
 class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    name = db.Column(db.String(80), nullable=False)
     inventory_id = db.Column(db.Integer, db.ForeignKey('inventory.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
 
@@ -253,12 +278,14 @@ class OrderItem(db.Model):
 
 order_item_args = reqparse.RequestParser()
 order_item_args.add_argument('order_id', type=int, help='ID of the order', required=True)
+order_item_args.add_argument('name', type=str, help='Name of the item', required=True)
 order_item_args.add_argument('inventory_id', type=int, help='ID of the inventory item', required=True)
 order_item_args.add_argument('quantity', type=int, help='Quantity of the item in the order', required=True)
 
 class OrderItemResource(Resource):
     order_item_fields = {
             'id': fields.Integer,
+            'name': fields.String,
             'order_id': fields.Integer,
             'inventory_id': fields.Integer,
             'quantity': fields.Integer
@@ -329,7 +356,6 @@ class Repair(db.Model):
         return f'<Repair {self.id}>'
     
 repair_args = reqparse.RequestParser()
-repair_args.add_argument('repair_date', type=str, help='Date of the repair', required=True)
 repair_args.add_argument('repair_status', type=str, help='Status of the repair', required=True)
 repair_args.add_argument('customer_name', type=str, help='Name of the customer', required=True)
 repair_args.add_argument('vehicle_model', type=str, help='Model of the vehicle', required=True)

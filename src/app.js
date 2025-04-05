@@ -317,7 +317,7 @@ function filterInventory() {
     .map(item => `
       <tr>
         <td class="px-6 py-4">${item.manufacturer}</td>
-        <td class="px-6 py-4">${item.model}</td>
+        <td class="px-6 py-4">${item.part_number}</td>
         <td class="px-6 py-4">${item.name}</td>
         <td class="px-6 py-4">${item.category}</td>
         <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
@@ -342,6 +342,7 @@ function handleAddInventoryItem(event) {
     quantity: parseInt(formData.get('quantity')),
     manufacturer: formData.get('manufacturer'),
     part_number: formData.get('partNumber'),
+    date_of_purchase: new Date().toISOString().split('T')[0]
   };
   
   inventory.push(item);
@@ -512,18 +513,18 @@ function handleAddOrder(event) {
   const formData = new FormData(event.target);
   const order = {
     id: Date.now().toString(),
-    customerName: formData.get('customerName'),
+    customer_name: formData.get('customerName'),
     items: Array.from(document.querySelectorAll("#cartItemsBody tr")).map(row => ({
       name: row.querySelector("td").textContent,
       quantity: row.querySelector(".orderQuantity").value,
       price: parseFloat(row.querySelector(".orderPrice").getAttribute("data-price"))
     })),
-    totalPrice: parseFloat(document.getElementById("totalPrice").value.replace('$', '')),
-    orderDate: new Date().toISOString().split('T')[0]
+    total_price: parseFloat(document.getElementById("totalPrice").value.replace('$', '')),
+    order_date: new Date().toISOString().split('T')[0]
   };
   
   orders.push(order);
-  alert(`Order for ${order.customerName} has been placed.`);
+  alert(`Order for ${order.customer_name} has been placed.`);
   event.target.reset();
   document.getElementById("cartItemsBody").innerHTML = ''; // Clear cart items
 }
