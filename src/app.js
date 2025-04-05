@@ -242,12 +242,13 @@ function handleAddEmployee(event) {
   
   const formData = new FormData(event.target);
   const employee = {
-    id: Date.now().toString(),
+    id: '',
+    status: 'Active',
     name: formData.get('name'),
     position: formData.get('position'),
     email: formData.get('email'),
     phone: formData.get('phone'),
-    hireDate: new Date().toISOString().split('T')[0]
+    date_of_employment: new Date().toISOString().split('T')[0]
   };
   
   employees.push(employee);
@@ -268,7 +269,7 @@ function renderEmployees() {
       </td>
       <td class="px-6 py-4 empName" contenteditable="false">${employee.name}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.position}</td>
-      <td class="px-6 py-4" contenteditable="false">${employee.hireDate}</td>
+      <td class="px-6 py-4" contenteditable="false">${employee.date_of_employment}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.email}</td>
       <td class="px-6 py-4" contenteditable="false">${employee.phone}</td>
       <td class="px-6 py-4 flex gap-2">
@@ -334,14 +335,13 @@ function handleAddInventoryItem(event) {
   
   const formData = new FormData(event.target);
   const item = {
-    id: Date.now().toString(),
+    id: '',
     name: formData.get('name'),
     category: formData.get('category'),
     price: parseFloat(formData.get('price')),
     quantity: parseInt(formData.get('quantity')),
     manufacturer: formData.get('manufacturer'),
-    partNumber: formData.get('partNumber'),
-    model: formData.get('model')
+    part_number: formData.get('partNumber'),
   };
   
   inventory.push(item);
@@ -355,7 +355,7 @@ function renderInventory() {
   tbody.innerHTML = inventory.map(item => `
     <tr>
       <td class="px-6 py-4">${item.manufacturer}</td>
-      <td class="px-6 py-4">${item.model}</td>
+      <td class="px-6 py-4">${item.part_number}</td>
       <td class="px-6 py-4">${item.name}</td>
       <td class="px-6 py-4">${item.category}</td>
       <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
@@ -380,14 +380,14 @@ function handleAddRepair(event) {
   const formData = new FormData(event.target);
   const repair = {
     id: Date.now().toString(),
-    customerName: formData.get('customerName'),
-    vehicleInfo: formData.get('vehicleInfo'),
+    customer_name: formData.get('customerName'),
+    vehicle_model: formData.get('vehicleInfo'),
     description: formData.get('description'),
-    status: 'pending',
-    assignedTo: formData.get('assignedTo'),
-    scheduledDate: formData.get('scheduledDate'),
-    estimatedCompletion: formData.get('estimatedCompletion'),
-    price: parseFloat(formData.get('price')),
+    repair_status: 'pending',
+    assigned_employee: formData.get('assignedTo'),
+    scheduled_date: formData.get('scheduledDate'),
+    estimated_completion_date: formData.get('estimatedCompletion'),
+    repair_cost: parseFloat(formData.get('price')),
   };
   
   repairs.push(repair);
@@ -401,18 +401,18 @@ function renderRepairs() {
   board.innerHTML = repairs.map(repair => `
     <div class="bg-white p-4 rounded-lg shadow-md">
       <div class="flex justify-between items-start mb-4">
-        <h3 class="font-semibold">${repair.customerName}</h3>
-        <span class="px-2 py-1 rounded text-sm ${getStatusColor(repair.status)}">${repair.status}</span>
+        <h3 class="font-semibold">${repair.customer_name}</h3>
+        <span class="px-2 py-1 rounded text-sm ${getStatusColor(repair.repair_status)}">${repair.repair_status}</span>
       </div>
-      <p class="text-sm text-gray-600 mb-2">${repair.vehicleInfo}</p>
+      <p class="text-sm text-gray-600 mb-2">${repair.vehicle_model}</p>
       <p class="text-sm mb-4">${repair.description}</p>
       <div class="text-sm text-gray-500">
-        <p>Assigned to: ${repair.assignedTo}</p>
-        <p>Scheduled: ${repair.scheduledDate}</p>
-        <p>Est. Completion: ${repair.estimatedCompletion}</p>
+        <p>Assigned to: ${repair.assigned_employeeo}</p>
+        <p>Scheduled: ${repair.scheduled_date}</p>
+        <p>Est. Completion: ${repair.estimated_completion_date}</p>
       </div>
       <div class="mt-4 flex justify-between space-x-2">
-        <h1 class="text-xl font-black col text-green-500">$${repair.price}</h1>
+        <h1 class="text-xl font-black col text-green-500">$${repair.repair_cost}</h1>
         <div class="flex space-x-2 items-center gap-2">
           <button onclick="updateRepairStatus('${repair.id}')" class="text-blue-600 hover:text-blue-800">Update Status</button>
           <button onclick="deleteRepair('${repair.id}')" class="text-red-600 hover:text-red-800">Delete</button>
