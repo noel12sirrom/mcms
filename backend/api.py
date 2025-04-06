@@ -107,13 +107,13 @@ class Inventory(db.Model):
         return f'<Inventory {self.name}>'
     
 inventory_args = reqparse.RequestParser()
-inventory_args.add_argument('name', type=str, help='Name of the item', required=True)
-inventory_args.add_argument('quantity', type=int, help='Quantity of the item', required=True)
-inventory_args.add_argument('manufacturer', type=str, help='Manufacturer of the item', required=True)
-inventory_args.add_argument('part_number', type=str, help='Part number of the item', required=True)
-inventory_args.add_argument('date_of_purchase', type=str, help='Date of purchase of the item', required=True)
-inventory_args.add_argument('category', type=str, help='Category of the item', required=True)
-inventory_args.add_argument('price', type=float, help='Price of the item', required=True)
+inventory_args.add_argument('name', type=str, help='Name of the item')
+inventory_args.add_argument('quantity', type=int, help='Quantity of the item')
+inventory_args.add_argument('manufacturer', type=str, help='Manufacturer of the item')
+inventory_args.add_argument('part_number', type=str, help='Part number of the item')
+inventory_args.add_argument('date_of_purchase', type=str, help='Date of purchase of the item')
+inventory_args.add_argument('category', type=str, help='Category of the item')
+inventory_args.add_argument('price', type=float, help='Price of the item')
 
 
 class InventoryResource(Resource):
@@ -153,7 +153,7 @@ class InventoryResource(Resource):
     @marshal_with(inventory_fields)
     def patch(self, inventory_id):
         args = inventory_args.parse_args()
-        inventory = Inventory.query.get(inventory_id)
+        inventory = db.session.get(Inventory, inventory_id)
         if not inventory:
             abort(404, message="Inventory item not found")
         
@@ -166,7 +166,7 @@ class InventoryResource(Resource):
     
     @marshal_with(inventory_fields)
     def delete(self, inventory_id):
-        inventory = Inventory.query.get(inventory_id)
+        inventory = db.session.get(Inventory, inventory_id)
         if not inventory:
             abort(404, message="Inventory item not found")
         
@@ -454,9 +454,97 @@ class RepairResource(Resource):
     
 api.add_resource(RepairResource, '/repairs', '/repair/<int:repair_id>')
 
-@app.route('/', methods=['GET'])
-def home():
-    return {'message': 'Hello, World!'}, 200
+class SalesReportResource(Resource):
+    def get(self):
+        start = request.args.get('start_date')
+        end = request.args.get('end_date')
+
+        query = Order.query
+        if start:
+            query = query.filter(Order.order_date >= start)
+        if end:
+            query = query.filter(Order.order_date <= end)
+        
+        orders = query.all()
+        order_items = OrderItem.query.join(Order).filter(Order.id.in_([o.id for o in orders])).all()
+
+        total_orders = len(orders)
+        total_revenue = sum(order.total_price for order in orders)
+
+        item_sales = {}
+        for item in order_items:
+            if item.name in item_sales:
+                item_sales[item.name]['quantity'] += item.quantity
+            else:
+                item_sales[item.name] = {'quantity': item.quantity}
+
+        best_selling = sorted(item_sales.items(), key=lambda x: x[1]['quantity'], reverse=True)
+
+        return {
+            'total_orders': total_orders,
+            'total_revenue': total_revenue,
+            'best_selling_items': best_selling
+        }, 200
+        
+api.add_resource(SalesReportResource, '/sales_report')
+
+class InventoryReportResource(Resource):
+    def get(self):
+        start = request.args.get('start_date')
+        end = request.args.get('end_date')
+
+        query = Inventory.query
+        if start:
+            query = query.filter(Inventory.date_of_purchase >= start)
+        if end:
+            query = query.filter(Inventory.date_of_purchase <= end)
+
+        items = query.all()
+        total_items = len(items)
+        total_value = sum(item.price * item.quantity for item in items)
+
+        return {
+            'total_inventory_items': total_items,
+            'total_inventory_value': total_value,
+            'items': [
+                {
+                    'name': i.name,
+                    'quantity': i.quantity,
+                    'price': i.price,
+                    'total_value': i.price * i.quantity
+                } for i in items
+            ]
+        }, 200
+api.add_resource(InventoryReportResource, '/inventory_report')
+
+class RepairReportResource(Resource):
+    def get(self):
+        start = request.args.get('start_date')
+        end = request.args.get('end_date')
+
+        query = Repair.query
+        if start:
+            query = query.filter(Repair.scheduled_date >= start)
+        if end:
+            query = query.filter(Repair.scheduled_date <= end)
+
+        repairs = query.all()
+        total_repairs = len(repairs)
+        total_cost = sum(r.repair_cost for r in repairs)
+
+        return {
+            'total_repairs': total_repairs,
+            'total_cost': total_cost,
+            'repairs': [
+                {
+                    'customer_name': r.customer_name,
+                    'vehicle_model': r.vehicle_model,
+                    'repair_cost': r.repair_cost,
+                    'repair_status': r.repair_status
+                } for r in repairs
+            ]
+        }, 200
+api.add_resource(RepairReportResource, '/repair_report')
 
 if __name__ == '__main__':
     app.run(debug=True)

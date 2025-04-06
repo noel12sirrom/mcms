@@ -3,3 +3,4 @@ $ source .venv/Scripts/activate
 
 |deactivate
 deactivate
+npm run dev

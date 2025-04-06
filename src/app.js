@@ -3,65 +3,9 @@
 let employees = [];
 
 let repairs = [
-  {
-    id: "1",
-    customerName: "John Doe",
-    vehicleInfo: "Yamaha R3 - 2020",
-    description: "Oil change and brake pad replacement",
-    status: "pending",
-    assignedTo: "Mike Johnson",
-    scheduledDate: "2025-04-05",
-    estimatedCompletion: "2025-04-06",
-    price: 150.00
-  },
-  {
-    id: "2",
-    customerName: "Sarah Williams",
-    vehicleInfo: "Kawasaki Ninja 400 - 2019",
-    description: "Clutch adjustment and chain replacement",
-    status: "in-progress",
-    assignedTo: "Jake Peterson",
-    scheduledDate: "2025-04-02",
-    estimatedCompletion: "2025-04-04",
-    price: 200.00
-  },
-  {
-    id: "3",
-    customerName: "David Brown",
-    vehicleInfo: "Honda CBR500R - 2021",
-    description: "Tire replacement and engine tuning",
-    status: "completed",
-    assignedTo: "Chris Evans",
-    scheduledDate: "2025-03-30",
-    estimatedCompletion: "2025-04-01",
-    price: 300.00
-  },
-  {
-    id: "4",
-    customerName: "Emily Johnson",
-    vehicleInfo: "Suzuki GSX-R600 - 2018",
-    description: "Exhaust system repair and fuel injection tuning",
-    status: "pending",
-    assignedTo: "Emma Watson",
-    scheduledDate: "2025-04-07",
-    estimatedCompletion: "2025-04-08",
-    price: 250.00
-  },
-  {
-    id: "5",
-    customerName: "Michael Davis",
-    vehicleInfo: "KTM Duke 390 - 2022",
-    description: "Electrical wiring issue and battery replacement",
-    status: "in-progress",
-    assignedTo: "Daniel Carter",
-    scheduledDate: "2025-04-03",
-    estimatedCompletion: "2025-04-05",
-    price: 180.00
-  }
 ];
 
 let inventory = [
-
 ];
 
 let orders = [];
@@ -147,7 +91,6 @@ async function showSection(sectionId) {
   }
   if (sectionId === 'repairs') {
     await fetchRepairsData();
-  
   }
   if (sectionId === 'employees') {
     await fetchEmployeesData();
@@ -159,6 +102,7 @@ async function showSection(sectionId) {
   if (sectionId === 'orderHistory') {
     await fetchOrdersData();
   }
+  
 }
 
 // Modal handling
@@ -197,14 +141,14 @@ async function edit(event, table, id) {
 
     if (table === 'inventory') {
       const updatedData = {
-        name: cells[1].textContent,
-        category: cells[2].textContent,
-        price: parseFloat(cells[3].textContent.replace('$', '')),
-        quantity: parseInt(cells[4].textContent),
-        manufacturer: cells[5].textContent,
-        part_number: cells[6].textContent
+        name: cells[2].textContent,
+        category: cells[3].textContent,
+        price: parseFloat(cells[4].textContent.replace('$', '')),
+        quantity: parseInt(cells[5].textContent),
+        manufacturer: cells[0].textContent,
+        part_number: cells[1].textContent
       };
-      await updateInventory(id, updatedData);
+      await updateInventoryItem(id, updatedData);
     }
       
     console.log('Save changes:', Array.from(cells).map(cell => cell.textContent));
@@ -247,7 +191,7 @@ const updateInventoryItem = async (inventoryId, updatedData) => {
 
     const updatedItem = await response.json();
     console.log('Inventory item updated:', updatedItem);
-    fetchInventoryData();
+    await fetchInventoryData();
   } catch (error) {
     console.error('Error updating inventory item:', error);
   }
@@ -443,20 +387,25 @@ async function handleAddInventoryItem(event) {
 
 function renderInventory() {
   const tbody = document.getElementById('inventoryTableBody');
-  tbody.innerHTML = inventory.map(item => `
-    <tr>
-      <td class="px-6 py-4">${item.manufacturer}</td>
-      <td class="px-6 py-4">${item.part_number}</td>
-      <td class="px-6 py-4">${item.name}</td>
-      <td class="px-6 py-4">${item.category}</td>
-      <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
-      <td class="px-6 py-4">${item.quantity}</td>
-      <td class="px-6 py-4 flex gap-2">
-        <button onclick="edit(event, 'inventory', ${item.id})" class="text-blue-600 hover:text-blue-800">Edit</button>
-        <button onclick="deleteInventoryItem('${item.id}')" class="text-red-600 hover:text-red-800">Del</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = inventory.map(item => {
+    const isLowStock = item.quantity < 20;
+    const rowClass = isLowStock ? 'bg-red-100' : ''; // Light red background for low stock
+
+    return `
+      <tr class="${rowClass}">
+        <td class="px-6 py-4">${item.manufacturer}</td>
+        <td class="px-6 py-4">${item.part_number}</td>
+        <td class="px-6 py-4">${item.name}</td>
+        <td class="px-6 py-4">${item.category}</td>
+        <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
+        <td class="px-6 py-4">${item.quantity}</td>
+        <td class="px-6 py-4 flex gap-2">
+          <button onclick="edit(event, 'inventory', ${item.id})" class="text-blue-600 hover:text-blue-800">Edit</button>
+          <button onclick="deleteInventoryItem('${item.id}')" class="text-red-600 hover:text-red-800">Del</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 const deleteInventoryItem = async (inventoryId) => {
@@ -585,84 +534,47 @@ const deleteRepair = async (repairId) => {
   }
 };
 
-// Report generation
-function generateReport(type) {
-  let reportData;
-  switch (type) {
-    case 'sales':
-      reportData = generateSalesReport();
-      break;
-    case 'inventory':
-      reportData = generateInventoryReport();
-      break;
-    case 'repairs':
-      reportData = generateRepairsReport();
-      break;
-  }
-  
-  // For demonstration, we'll just console.log the report
-  console.log(`${type.toUpperCase()} Report:`, reportData);
-  alert(`${type.toUpperCase()} report has been generated. Check the console for details.`);
-}
-
-function generateSalesReport() {
-  // Implement sales report logic
-  return {
-    totalSales: 0,
-    itemsSold: 0,
-    topSellingItems: []
-  };
-}
-
-function generateInventoryReport() {
-  return {
-    totalItems: inventory.length,
-    lowStock: inventory.filter(item => item.quantity < 5),
-    totalValue: inventory.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  };
-}
-
-function generateRepairsReport() {
-  return {
-    totalRepairs: repairs.length,
-    pending: repairs.filter(r => r.status === 'pending').length,
-    inProgress: repairs.filter(r => r.status === 'in-progress').length,
-    completed: repairs.filter(r => r.status === 'completed').length
-  };
-}
-
 function renderOrders() {
   const tbody = document.getElementById('orderTableBody'); 
-  tbody.innerHTML = inventory.map(item => `
-    <tr onclick="addToOrder(event)" class='cursor-pointer hover:bg-gray-100')>
-      <td class="px-6 py-4">${item.manufacturer}</td>
-      <td class="px-6 py-4">${item.name}</td>
-      <td class="px-6 py-4">${item.category}</td>
-      <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
-      <td class="px-6 py-4">${item.quantity}</td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = inventory
+    .filter(item => item.quantity > 0)
+    .map(item => `
+      <tr onclick="addToOrder(event)" class='cursor-pointer hover:bg-gray-100'>
+        <td class="px-6 py-4">${item.manufacturer}</td>
+        <td class="px-6 py-4">${item.name}</td>
+        <td class="px-6 py-4">${item.category}</td>
+        <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
+        <td class="px-6 py-4">${item.quantity}</td>
+      </tr>
+    `).join('');
 }
+
 function renderOrdersHistory() {
   const tbody = document.getElementById('orderHistoryTableBody');
 }
 
 async function handleAddOrder(event) {
   event.preventDefault();
-  
+
   const formData = new FormData(event.target);
+  const cartRows = document.querySelectorAll("#cartItemsBody tr");
+
+  const orderItems = Array.from(cartRows).map(row => {
+    return {
+      name: row.querySelector("td").textContent,
+      quantity: parseInt(row.querySelector(".orderQuantity").value),
+      price: parseFloat(row.querySelector(".orderPrice").getAttribute("data-price"))
+    };
+  });
+
   const order = {
     id: Date.now().toString(),
     customer_name: formData.get('customerName'),
-    items: Array.from(document.querySelectorAll("#cartItemsBody tr")).map(row => ({
-      name: row.querySelector("td").textContent,
-      quantity: row.querySelector(".orderQuantity").value,
-      price: parseFloat(row.querySelector(".orderPrice").getAttribute("data-price"))
-    })),
+    items: orderItems,
     total_price: parseFloat(document.getElementById("totalPrice").value.replace('$', '')),
     order_date: new Date().toISOString().split('T')[0]
   };
-  
+
   try {
     const response = await fetch('http://127.0.0.1:5000/orders', {
       method: 'POST',
@@ -674,15 +586,26 @@ async function handleAddOrder(event) {
 
     const newOrder = await response.json();
     console.log('Order added:', newOrder);
-    fetchOrdersData(); // Refresh list
+
+    // Update inventory for each item
+    for (const orderedItem of orderItems) {
+      const inventoryItem = inventory.find(i => i.name === orderedItem.name);
+      if (inventoryItem) {
+        const updatedQuantity = inventoryItem.quantity - orderedItem.quantity;
+        await updateInventoryItem(inventoryItem.id, { quantity: updatedQuantity });
+      }
+    }
+
   } catch (error) {
     console.error('Error adding order:', error);
   }
+  
   event.target.reset();
-  document.getElementById("cartItemsBody").innerHTML = ''; // Clear cart items
+  document.getElementById("cartItemsBody").innerHTML = ''; // Clear cart
+  renderOrders();
 }
 
-function deleteOrder(orderId) {
+async function deleteOrder(orderId) {
   if (!confirm("Are you sure you want to delete this order?")) return;
 
   fetch(`http://127.0.0.1:5000/order/${orderId}`, {
@@ -690,7 +613,7 @@ function deleteOrder(orderId) {
   })
     .then(response => {
       if (response.ok) {
-        renderOrders();
+        fetchOrdersData(); // Refresh orders list
       } else {
         alert("Failed to delete order.");
       }
@@ -740,21 +663,60 @@ function addToOrder(event) {
   const row = event.target.closest('tr');
   const cells = row.querySelectorAll('td');
   const orderItemsContainer = document.getElementById("cartItemsBody");
-  const orderItem = document.createElement("tr");
 
   const itemName = cells[1].textContent;
   const itemPrice = parseFloat(cells[3].textContent.replace('$', '')).toFixed(2);
 
-  orderItem.className = "mb-2";
-  orderItem.innerHTML = `
-      <td class="px-6 py-4">${itemName}</td>
-      <td class="px-6 py-4"><input type="number" class="orderQuantity w-16 text-center" value="1" min="1" onchange="calculateTotal()" /></td>
-      <td class="px-6 py-4 orderPrice" data-price="${itemPrice}">$${itemPrice}</td>
-      <td class="px-6 py-4"><button class="text-red-600 hover:text-red-800 font-bold text-2xl text-center" onclick="removeOrderItem(event)">×</button></td>
-  `;
-  orderItemsContainer.appendChild(orderItem);
-  calculateTotal();
+  // Find the inventory item
+  const inventoryItem = inventory.find(item => item.name === itemName);
+  if (!inventoryItem || inventoryItem.quantity <= 0) return;
 
+  // Check if item is already in the cart
+  const existingRow = Array.from(orderItemsContainer.querySelectorAll("tr")).find(tr =>
+    tr.querySelector("td")?.textContent === itemName
+  );
+
+  if (existingRow) {
+    const qtyInput = existingRow.querySelector("input.orderQuantity");
+    let currentQty = parseInt(qtyInput.value);
+    if (currentQty < inventoryItem.quantity) {
+      qtyInput.value = currentQty + 1;
+    } else {
+      alert(`Only ${inventoryItem.quantity} in stock.`);
+    }
+  } else {
+    const orderItem = document.createElement("tr");
+    orderItem.className = "mb-2";
+    orderItem.innerHTML = `
+        <td class="px-6 py-4">${itemName}</td>
+        <td class="px-6 py-4">
+          <input 
+            type="number" 
+            class="orderQuantity w-16 text-center" 
+            value="1" 
+            min="1" 
+            max="${inventoryItem.quantity}" 
+            onchange="enforceMaxQuantity(this, ${inventoryItem.quantity}); calculateTotal()" 
+          />
+        </td>
+        <td class="px-6 py-4 orderPrice" data-price="${itemPrice}">$${itemPrice}</td>
+        <td class="px-6 py-4">
+          <button class="text-red-600 hover:text-red-800 font-bold text-2xl text-center" onclick="removeOrderItem(event)">×</button>
+        </td>
+    `;
+    orderItemsContainer.appendChild(orderItem);
+  }
+
+  calculateTotal();
+}
+// Helper to enforce the max quantity in input field
+function enforceMaxQuantity(input, max) {
+  if (parseInt(input.value) > max) {
+    input.value = max;
+    alert(`Only ${max} in stock.`);
+  } else if (parseInt(input.value) < 1) {
+    input.value = 1;
+  }
 }
 
 function removeOrderItem(event) {
@@ -816,11 +778,151 @@ function renderOrdersHistory() {
   `).join('');
 }
 
+// Report generation
+function generateSalesReport() {
+  alert('/sales_report?start_date=2025-01-01&end_date=2025-04-01');
+  const startDate = document.getElementById('startDate').value;
+  const endDate = document.getElementById('endDate').value;
 
+  fetch(`http://127.0.0.1:5000/sales_report?start_date=${startDate}&end_date=${endDate}`)
+    .then(response => response.json())
+    .then(data => {
+      const output = document.getElementById('reportOutput');
+      output.innerHTML = `
+        <div class="bg-white shadow-lg rounded-xl p-6 max-w-3xl mx-auto">
+          <h3 class="text-2xl font-bold text-blue-600 mb-4">📈 Sales Report</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <p><span class="font-semibold">Total Orders:</span> ${data.total_orders}</p>
+            <p><span class="font-semibold">Total Revenue:</span> $${data.total_revenue.toFixed(2)}</p>
+          </div>
+          <h4 class="text-xl font-semibold text-gray-700 mb-2">Best Selling Items</h4>
+          <ul class="list-disc list-inside space-y-1 text-gray-600">
+            ${data.best_selling_items.map(item => `<li><span class="font-medium">${item[0]}</span>: ${item[1].quantity} sold</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    })
+    .catch(error => {
+      console.error('Error fetching sales report:', error);
+    });
+}
 
+function generateInventoryReport() {
+  const startDate = document.getElementById('startDate').value;
+  const endDate = document.getElementById('endDate').value;
+
+  fetch(`http://127.0.0.1:5000/inventory_report?start_date=${startDate}&end_date=${endDate}`)
+    .then(response => response.json())
+    .then(data => {
+      const output = document.getElementById('reportOutput');
+      output.innerHTML = `
+        <div class="bg-white shadow-lg rounded-xl p-6 max-w-3xl mx-auto">
+          <h3 class="text-2xl font-bold text-green-600 mb-4">📦 Inventory Report</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <p><span class="font-semibold">Total Items:</span> ${data.total_inventory_items}</p>
+            <p><span class="font-semibold">Total Value:</span> $${data.total_inventory_value.toFixed(2)}</p>
+          </div>
+          <h4 class="text-xl font-semibold text-gray-700 mb-2">Inventory Items</h4>
+          <ul class="list-disc list-inside space-y-1 text-gray-600">
+            ${data.items.map(item => `<li>${item.name} — ${item.quantity} in stock @ $${item.price}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    })
+    .catch(error => {
+      console.error('Error fetching inventory report:', error);
+    });
+}
+
+function generateRepairReport() {
+  const startDate = document.getElementById('startDate').value;
+  const endDate = document.getElementById('endDate').value;
+
+  fetch(`http://127.0.0.1:5000/repair_report?start_date=${startDate}&end_date=${endDate}`)
+    .then(response => response.json())
+    .then(data => {
+      const output = document.getElementById('reportOutput');
+      output.innerHTML = `
+        <div class="bg-white shadow-lg rounded-xl p-6 max-w-3xl mx-auto">
+          <h3 class="text-2xl font-bold text-red-600 mb-4">🛠️ Repair Report</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <p><span class="font-semibold">Total Repairs:</span> ${data.total_repairs}</p>
+            <p><span class="font-semibold">Total Repair Cost:</span> $${data.total_cost.toFixed(2)}</p>
+          </div>
+          <h4 class="text-xl font-semibold text-gray-700 mb-2">Repair Jobs</h4>
+          <ul class="list-disc list-inside space-y-1 text-gray-600">
+            ${data.repairs.map(r => `<li>${r.customer_name} (${r.vehicle_model}) - $${r.repair_cost} [${r.repair_status}]</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    })
+    .catch(error => {
+      console.error('Error fetching repair report:', error);
+    });
+}
+
+function handleLogin(event) {
+  event.preventDefault();
+
+  const password = document.getElementById('loginPassword').value;
+
+  // Define the button IDs
+  const fullAccessBtns = ['ordBtn', 'reprBtn', 'empBtn', 'invBtn', 'repBtn'];
+  const limitedAccessBtns = ['ordBtn', 'reprBtn'];
+
+  // Access logic
+  if (password === 'admin') {
+    fullAccessBtns.forEach(id => {
+      document.getElementById(id)?.classList.remove('hidden');
+    });
+    showSection('orderHistory');
+    document.getElementById('logoutBtn').classList.remove('hidden');
+  } else if (password === '1234') {
+    limitedAccessBtns.forEach(id => {
+      document.getElementById(id)?.classList.remove('hidden');
+      document.getElementById('logoutBtn').classList.remove('hidden');
+    });
+    showSection('orderHistory');
+  } else {
+    alert('Incorrect password. Please try again.');
+  }
+}
+
+function handleLogout() {
+  // Hide all buttons
+  const fullAccessBtns = ['ordBtn', 'reprBtn', 'empBtn', 'invBtn', 'repBtn'];
+  fullAccessBtns.forEach(id => {
+    document.getElementById(id)?.classList.add('hidden');
+  });
+  document.getElementById('logoutBtn').classList.add('hidden');
+  
+  // Show login section
+  showSection('login');
+}
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-  showSection('order');
+  const startDateInput = document.getElementById('startDate');
+  const endDateInput = document.getElementById('endDate');
+
+  function updateButtonState() {
+      const startFilled = startDateInput.value.trim() !== '';
+      const endFilled = endDateInput.value.trim() !== '';
+      const salesBtn = document.getElementById('salesBtn');
+      const repairBtn = document.getElementById('repairBtn');
+      const inventoryBtn = document.getElementById('inventoryBtn');
+
+      const enable = startFilled && endFilled;
+      salesBtn.disabled = !enable;
+      repairBtn.disabled = !enable;
+      inventoryBtn.disabled = !enable;
+
+    }
+  // Listen for changes
+  startDateInput.addEventListener('input', updateButtonState);
+  endDateInput.addEventListener('input', updateButtonState);
+
+
+  showSection('login');
   document.getElementById("currentDate").textContent = new Date().toLocaleDateString();
 });
