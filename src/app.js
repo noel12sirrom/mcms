@@ -568,10 +568,22 @@ async function updateRepairStatus(id) {
   }
 }
 
-function deleteRepair(id) {
-  repairs = repairs.filter(repair => repair.id !== id);
-  renderRepairs();
-}
+const deleteRepair = async (repairId) => {
+  try {
+    const response = await fetch(`http://127.0.0.1:5000/repair/${repairId}`, {
+      method: 'DELETE'
+    });
+
+    if (response.ok) {
+      console.log(`Repair ${repairId} deleted.`);
+      fetchRepairsData();
+    } else {
+      throw new Error('Delete failed');
+    }
+  } catch (error) {
+    console.error('Error deleting repair:', error);
+  }
+};
 
 // Report generation
 function generateReport(type) {

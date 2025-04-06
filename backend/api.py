@@ -206,7 +206,7 @@ class OrderResource(Resource):
         return order
     
     def get(self):
-        orders = Order.query.all()
+        orders = db.session.execute(db.select(Order)).scalars().all()
         if not orders:
             abort(404, message="No orders found")
 
@@ -268,7 +268,7 @@ class OrderResource(Resource):
     @marshal_with(order_fields)
     def patch(self, order_id):
         args = order_args.parse_args()
-        order = Order.query.get(order_id)
+        order = db.session.get(Order, order_id)
         if not order:
             abort(404, message="Order not found")
         
@@ -281,7 +281,7 @@ class OrderResource(Resource):
     
     @marshal_with(order_fields)
     def delete(self, order_id):
-        order = Order.query.get(order_id)
+        order = db.session.get(Order, order_id)
         if not order:
             abort(404, message="Order not found")
 
@@ -431,7 +431,7 @@ class RepairResource(Resource):
     @marshal_with(repair_fields)
     def patch(self, repair_id):
         args = repair_args.parse_args()
-        repair = Repair.query.get(repair_id)
+        repair = db.session.get(Repair, repair_id)
         if not repair:
             abort(404, message="Repair not found")
         
@@ -444,7 +444,7 @@ class RepairResource(Resource):
     
     @marshal_with(repair_fields)
     def delete(self, repair_id):
-        repair = Repair.query.get(repair_id)
+        repair = db.session.get(Repair, repair_id)
         if not repair:
             abort(404, message="Repair not found")
         
