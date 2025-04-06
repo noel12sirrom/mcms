@@ -4,6 +4,7 @@ from flask_restful import Api, Resource, reqparse, marshal_with, fields, abort
 import datetime
 from flask import request
 from flask_cors import CORS
+from flask import jsonify
 
 app = Flask(__name__)
 CORS(app) # ALLOWS FRONT END TO SEND REQUESTS
@@ -204,12 +205,32 @@ class OrderResource(Resource):
             abort(404, message="Order not found")
         return order
     
-    @marshal_with(order_fields)
     def get(self):
         orders = Order.query.all()
         if not orders:
             abort(404, message="No orders found")
-        return orders
+
+        result = []
+        for order in orders:
+            order_items = OrderItem.query.filter_by(order_id=order.id).all()
+            item_list = []
+            for item in order_items:
+                inventory = Inventory.query.get(item.inventory_id)
+                if inventory:
+                    item_list.append({
+                        "name": inventory.name,
+                        "quantity": item.quantity,
+                        "price": inventory.price  # Assuming `price` is stored in Inventory
+                    })
+            result.append({
+                "id": order.id,
+                "customer_name": order.customer_name,
+                "order_date": order.order_date,
+                "total_price": order.total_price,
+                "items": item_list
+            })
+
+        return jsonify(result)
     
     @marshal_with(order_fields)
     def post(self):
@@ -242,6 +263,8 @@ class OrderResource(Resource):
 
         return new_order, 201
     
+    
+    
     @marshal_with(order_fields)
     def patch(self, order_id):
         args = order_args.parse_args()
@@ -261,7 +284,10 @@ class OrderResource(Resource):
         order = Order.query.get(order_id)
         if not order:
             abort(404, message="Order not found")
-        
+
+        # Delete associated order items first
+        OrderItem.query.filter_by(order_id=order.id).delete()
+
         db.session.delete(order)
         db.session.commit()
         return '', 204
