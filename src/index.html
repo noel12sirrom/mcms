@@ -10,9 +10,11 @@
   <body class="bg-gray-50">
     <div class="flex h-screen">
       <!-- Sidebar Navigation -->
-      <nav class="w-64 bg-white shadow-lg p-4">
+      <nav class="flex flex-col w-64 bg-white shadow-lg p-4 justify-between">
         <div class="mb-8">
-          <h1 class="text-2xl font-bold text-blue-600">Hewitt's MotorCycles</h1>
+          <h1 class="text-4xl font-extrabold text-blue-700 tracking-wide text-center mb-6 ">
+            Hewitt's MotorCycles
+          </h1>
         </div>
         <div class="space-y-2">
           <button id="ordBtn" onclick="showSection('orderHistory')" class="nav-item w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors hidden">
@@ -31,25 +33,29 @@
             Reports
           </button>
         </div>
-        <div class="flex w-full justify-center mt-8">
-          <button id="logoutBtn" onclick="handleLogout()" class="mt-8 text-center py-2 px-4 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors hidden">
+        <div id="lowStockAlert" class="hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded-lg shadow-md" role="alert">
+          <p class="font-bold">Low Stock Warning</p>
+          <p>Some items in your inventory are running low. Please restock soon.</p>
+        </div>
+        <div class="flex w-full justify-center ">
+          <button id="logoutBtn" onclick="handleLogout()" class=" text-center py-2 px-4 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors hidden">
             Logout
           </button>
         </div>
       </nav>
 
       <!-- Main Content -->
-      <main class="flex-1 p-8 overflow-auto">
+      <main class="flex-1 p-8 overflow-auto ">
 
         <!-- Login Section -->
-        <section id="login" class="section hidden mt-[10%]">
+        <section id="login" class="section hidden mt-[10%] ">
           <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md ">
             <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
 
             <!-- Login Form -->
             <form onsubmit="handleLogin(event)">
               <div class="mb-4">
-                <label for="loginEmail" class="block text-sm font-medium text-gray-700">Username</label>
+                <label for="loginUsername" class="block text-sm font-medium text-gray-700">Username</label>
                 <input 
                   type="text" 
                   id="username" 
@@ -290,6 +296,7 @@
               <button id="salesBtn" onclick="generateSalesReport()" class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50" disabled>Sales Report</button>
               <button id="repairBtn" onclick="generateRepairReport()" class="bg-green-500 text-white px-4 py-2 rounded disabled:opacity-50" disabled>Repair Report</button>
               <button id="inventoryBtn" onclick="generateInventoryReport()" class="bg-purple-500 text-white px-4 py-2 rounded disabled:opacity-50" disabled>Inventory Report</button>
+              <button onclick="generateLowStockReport()" class="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-700">Low Stock Report</button>
             </div>
           </div>
 

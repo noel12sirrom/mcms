@@ -546,5 +546,25 @@ class RepairReportResource(Resource):
         }, 200
 api.add_resource(RepairReportResource, '/repair_report')
 
+class LowStockReportResource(Resource):
+    def get(self):
+        low_stock_items = Inventory.query.filter(Inventory.quantity < 20).all()
+        total_items = len(low_stock_items)
+
+        return {
+            'low_stock_count': total_items,
+            'items': [
+                {
+                    'name': item.name,
+                    'category': item.category,
+                    'quantity': item.quantity,
+                    'price': item.price,
+                    'total_value': item.quantity * item.price
+                } for item in low_stock_items
+            ]
+        }, 200
+
+api.add_resource(LowStockReportResource, '/low_stock_report')
+
 if __name__ == '__main__':
     app.run(debug=True)

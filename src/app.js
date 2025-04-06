@@ -1,5 +1,5 @@
 // Data storage
-
+let admin = false; // Set to true if the user is an admin, false otherwise
 let employees = [];
 
 let repairs = [
@@ -10,6 +10,23 @@ let inventory = [
 
 let orders = [];
 
+function checkLowStockAlert() {
+  if (!admin) return; // Only check for low stock if the user is an admin
+  fetch('http://127.0.0.1:5000/low_stock_report')
+    .then(response => response.json())
+    .then(data => {
+      const alertBox = document.getElementById('lowStockAlert');
+      if (data.items && data.items.length > 0) {
+        alertBox.classList.remove('hidden');
+      } else {
+        alertBox.classList.add('hidden');
+      }
+    })
+    .catch(error => {
+      console.error("Error checking low stock:", error);
+    });
+}
+
 
 const fetchInventoryData = async () => {
   try {
@@ -18,6 +35,7 @@ const fetchInventoryData = async () => {
     inventory = data;
     console.log(inventory);
     renderInventory();
+    checkLowStockAlert();
   } catch (error) {
     console.error('Error fetching inventory:', error);
   }
@@ -457,6 +475,7 @@ async function handleAddRepair(event) {
     console.error('Error adding repair:', error);
   }
   hideModal('addRepairModal');
+  event.target.reset();
 }
 
 function renderRepairs() {
@@ -861,23 +880,68 @@ function generateRepairReport() {
     });
 }
 
+async function generateLowStockReport() {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/low_stock_report');
+    const data = await response.json();
+
+    const container = document.getElementById('reportOutput');
+    container.innerHTML = `
+      <h2 class="text-xl font-bold mb-4">Low Stock Inventory Report</h2>
+      <p class="mb-2 text-gray-700">Total Low Stock Items: <strong>${data.low_stock_count}</strong></p>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white shadow rounded-lg">
+          <thead class="bg-red-100">
+            <tr>
+              <th class="px-6 py-3 text-left text-sm font-semibold text-red-700">Name</th>
+              <th class="px-6 py-3 text-left text-sm font-semibold text-red-700">Category</th>
+              <th class="px-6 py-3 text-left text-sm font-semibold text-red-700">Quantity</th>
+              <th class="px-6 py-3 text-left text-sm font-semibold text-red-700">Price</th>
+              <th class="px-6 py-3 text-left text-sm font-semibold text-red-700">Total Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.items.map(item => `
+              <tr class="border-b">
+                <td class="px-6 py-4">${item.name}</td>
+                <td class="px-6 py-4">${item.category}</td>
+                <td class="px-6 py-4 text-red-600 font-semibold">${item.quantity}</td>
+                <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
+                <td class="px-6 py-4">$${item.total_value.toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (error) {
+    console.error('Error fetching low stock report:', error);
+  }
+}
+
 function handleLogin(event) {
   event.preventDefault();
 
-  const password = document.getElementById('loginPassword').value;
+  const username = document.getElementById('loginUsername');
+  const password = document.getElementById('loginPassword');
 
   // Define the button IDs
   const fullAccessBtns = ['ordBtn', 'reprBtn', 'empBtn', 'invBtn', 'repBtn'];
   const limitedAccessBtns = ['ordBtn', 'reprBtn'];
 
   // Access logic
-  if (password === 'admin') {
+  if (password.value === 'admin') {
     fullAccessBtns.forEach(id => {
       document.getElementById(id)?.classList.remove('hidden');
     });
-    showSection('orderHistory');
+    admin = true;
+
     document.getElementById('logoutBtn').classList.remove('hidden');
-  } else if (password === '1234') {
+
+    showSection('orderHistory');
+    
+  } else if (password.value === '1234') {
+    admin = false;
     limitedAccessBtns.forEach(id => {
       document.getElementById(id)?.classList.remove('hidden');
       document.getElementById('logoutBtn').classList.remove('hidden');
@@ -896,7 +960,10 @@ function handleLogout() {
   });
   document.getElementById('logoutBtn').classList.add('hidden');
   
-  // Show login section
+  admin = false
+  document.getElementById('lowStockAlert').classList.add('hidden');
+  document.getElementById('reportOutput').innerHTML = ''; // Clear report output
+ 
   showSection('login');
 }
 
