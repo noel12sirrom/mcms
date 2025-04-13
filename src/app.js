@@ -241,8 +241,8 @@ function filterEmployee() {
         <td class="px-6 py-4">${item.email}</td>
         <td class="px-6 py-4">${item.phone}</td>
         <td class="px-6 py-4 flex gap-2">
-        <button onclick="edit(event, 'employee', ${employee.id})" class="text-blue-600 hover:text-blue-800">Edit</button>
-        <button onclick="deleteEmployee('${employee.id}')" class="text-red-600 hover:text-red-800">Del</button>
+        <button onclick="edit(event, 'employee', ${item.id})" class="text-blue-600 hover:text-blue-800">Edit</button>
+        <button onclick="deleteEmployee('${item.id}')" class="text-red-600 hover:text-red-800">Del</button>
       </td>
       </tr>` 
       ).join('');
@@ -342,6 +342,7 @@ async function deleteEmployee(id) {
 }
 
 function filterInventory() {
+  console.log("filterInvenmtory called");
   const searchQuery = document.getElementById("inventorySearch").value.toLowerCase();
   
   const tbody = document.getElementById("inventoryTableBody");
@@ -350,11 +351,14 @@ function filterInventory() {
       item.name.toLowerCase().includes(searchQuery) || 
       item.category.toLowerCase().includes(searchQuery) ||
       item.manufacturer.toLowerCase().includes(searchQuery) || 
-      item.model.toLowerCase().includes(searchQuery) ||
-      item.manufacturer.toLowerCase().includes(searchQuery) 
+      item.part_number.toLowerCase().includes(searchQuery)
     )
-    .map(item => `
-      <tr>
+    .map(item => {
+      const isLowStock = item.quantity < 20;
+      const rowClass = isLowStock ? 'bg-red-100' : ''; // Light red background for low stock
+
+      return `
+      <tr class="${rowClass}">
         <td class="px-6 py-4">${item.manufacturer}</td>
         <td class="px-6 py-4">${item.part_number}</td>
         <td class="px-6 py-4">${item.name}</td>
@@ -362,11 +366,12 @@ function filterInventory() {
         <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
         <td class="px-6 py-4">${item.quantity}</td>
         <td class="px-6 py-4 flex gap-2">
-        <button onclick="edit(event, 'inventory', ${item.id})" class="text-blue-600 hover:text-blue-800">Edit</button>
-        <button onclick="deleteInventoryItem('${item.id}')" class="text-red-600 hover:text-red-800">Del</button>
-      </td>
+          <button onclick="edit(event, 'inventory', ${item.id})" class="text-blue-600 hover:text-blue-800">Edit</button>
+          <button onclick="deleteInventoryItem('${item.id}')" class="text-red-600 hover:text-red-800">Del</button>
+        </td>
       </tr>
-    `).join('');
+      `;
+    }).join('');
 }
 
 // Inventory management
@@ -649,19 +654,12 @@ function cancelOrder(event){
   calculateTotal(); // Reset total price
 }
 
-function filterOrderInventory() {
-  const searchQuery = document.getElementById("orderSearch").value.toLowerCase();
-  
-  const tbody = document.getElementById("orderTableBody");
+function renderOrders() {
+  const tbody = document.getElementById('orderTableBody'); 
   tbody.innerHTML = inventory
-    .filter(item => 
-      item.name.toLowerCase().includes(searchQuery) || 
-      item.category.toLowerCase().includes(searchQuery) ||
-      item.manufacturer.toLowerCase().includes(searchQuery) || 
-      item.model.toLowerCase().includes(searchQuery)
-    )
+    .filter(item => item.quantity > 0)
     .map(item => `
-      <tr onclick="addToOrder(event)" class='cursor-pointer hover:bg-gray-100>
+      <tr onclick="addToOrder(event)" class="cursor-pointer hover:bg-gray-100">
         <td class="px-6 py-4">${item.manufacturer}</td>
         <td class="px-6 py-4">${item.name}</td>
         <td class="px-6 py-4">${item.category}</td>
@@ -669,7 +667,32 @@ function filterOrderInventory() {
         <td class="px-6 py-4">${item.quantity}</td>
       </tr>
     `).join('');
-  tbody.forEach(row => {
+}
+
+
+function filterOrderInventory() {
+  const searchQuery = document.getElementById("orderSearch").value.toLowerCase();
+  
+  const tbody = document.getElementById("orderTableBody");
+  tbody.innerHTML = inventory
+    .filter(item => item.quantity > 0)
+    .filter(item => 
+      (item.name || '').toLowerCase().includes(searchQuery) || 
+      (item.category || '').toLowerCase().includes(searchQuery) ||
+      (item.manufacturer || '').toLowerCase().includes(searchQuery) || 
+      (item.part_number || '').toLowerCase().includes(searchQuery)
+    )
+    .map(item => `
+      <tr onclick="addToOrder(event)" class="cursor-pointer hover:bg-gray-100">
+        <td class="px-6 py-4">${item.manufacturer}</td>
+        <td class="px-6 py-4">${item.name}</td>
+        <td class="px-6 py-4">${item.category}</td>
+        <td class="px-6 py-4">$${item.price.toFixed(2)}</td>
+        <td class="px-6 py-4">${item.quantity}</td>
+      </tr>
+    `).join('');
+
+  [...tbody.querySelectorAll('tr')].forEach(row => {
     row.addEventListener('click', function() {
       const selectedItem = row.querySelector('td').textContent;
       const orderItemInput = document.getElementById("orderItemInput");
@@ -677,6 +700,56 @@ function filterOrderInventory() {
     });
   });
 }
+
+function filterOrderHistory() {
+  console.log("filter order hoistry called")
+  const searchQuery = document.getElementById("historySearch").value.toLowerCase();
+  
+  const board = document.getElementById("historyBoard");
+  board.innerHTML = orders
+    .filter(order => 
+      order.customer_name.toLowerCase().includes(searchQuery) ||
+      order.id.toString().includes(searchQuery) ||
+      order.items.some(item => item.name.toLowerCase().includes(searchQuery))
+    )
+    .map(order => `
+      <div class="flex flex-col justify-between w-full sm:w-[300px] bg-white p-5 rounded-xl shadow-md border border-gray-200 transition-all duration-200">
+        <div class="mb-4">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h2 class="text-base font-semibold text-gray-800">${order.customer_name}</h2>
+              <p class="text-xs text-gray-400">Order ID: ${order.id}</p>
+            </div>
+            <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">${order.order_date}</span>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-medium text-gray-700 mb-1">Items</h4>
+            <ul class="text-sm text-gray-700 space-y-1 max-h-[160px] overflow-y-auto pr-1">
+              ${order.items.map(item => `
+                <li class="flex justify-between">
+                  <span>${item.name} × ${item.quantity}</span>
+                  <span class="text-gray-500">$${item.price.toFixed(2)}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t mt-auto flex justify-between items-center">
+          <span class="text-sm text-gray-600">Total</span>
+          <span class="text-lg font-bold text-green-600">$${order.total_price.toFixed(2)}</span>
+        </div>
+
+        <div class="mt-3 text-right">
+          <button onclick="deleteOrder(${order.id})" class="inline-block px-3 py-1.5 text-sm text-red-600 bg-red-100 hover:bg-red-200 rounded transition">
+            Delete
+          </button>
+        </div>
+      </div>
+    `).join('');
+}
+
 
 function addToOrder(event) {
   const row = event.target.closest('tr');
